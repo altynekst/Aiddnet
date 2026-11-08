@@ -122,6 +122,18 @@ jobs:
       with:
         submodules: true
 
+    - name: Add prebuilt Android libraries
+      run: |
+        mkdir -p ddnet-libs
+        git clone --depth 1 https://github.com/ddnet/ddnet-libs /tmp/upstream-libs
+        find ddnet-libs -type d -name android -prune -exec rm -rf {} +
+        rm -rf ddnet-libs/sdl/java
+        (cd /tmp/upstream-libs && find . -type d \( -name android -o -path './sdl/java' \) -prune -print) | while read -r d; do
+          mkdir -p "ddnet-libs/$d"
+          cp -r "/tmp/upstream-libs/$d/." "ddnet-libs/$d/"
+        done
+        test -f ddnet-libs/curl/android/libarm/libcurl.a || { echo "ERROR: prebuilt Android libraries were not copied"; exit 1; }
+
     - name: Prepare
       run: |
         sudo apt-get update -y
