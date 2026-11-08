@@ -43,6 +43,16 @@ jobs:
           ls ddnet-libs/sdl ddnet-libs/curl
           test -f ddnet-libs/curl/android/libarm/libcurl.a || { echo "ERROR: prebuilt Android libraries were not copied"; exit 1; }
 
+      - name: Add data and datasrc
+        run: |
+          git clone --depth 1 --filter=blob:none --sparse https://github.com/altynekst/Kerenel /tmp/kdata
+          git -C /tmp/kdata sparse-checkout set data datasrc other
+          cp -r /tmp/kdata/data ./data
+          cp -r /tmp/kdata/datasrc ./datasrc
+          cp -r /tmp/kdata/other ./other
+          test -f data/autoexec_server.cfg || { echo "ERROR: data was not copied"; exit 1; }
+          test -f datasrc/compile.py || { echo "ERROR: datasrc was not copied"; exit 1; }
+
       - name: Prepare Linux
         run: |
           sudo apt-get update -y
